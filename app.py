@@ -265,7 +265,10 @@ def product(slug):
 
     # ✅ Create user (if needed) using the JS temp password
     user_id, created = create_user_if_needed(email, temp_password)
-
+    # ✅ log the user in (so /book works)
+    session["user_id"] = user_id
+    session["email"] = email
+    
     # Store calculation (optionally store user_id too if you added the column)
     conn = get_db()
     c = conn.cursor()
@@ -378,7 +381,7 @@ def login():
     if not user or not check_password_hash(user["password"], password):
         return render_template("login.html", error="Invalid email or password.", next=next_url)
 
-    session["user_id"] = user["id"]
+    session["user_id"] = user["user_id"]
     session["email"] = user["username"]
 
     if user["must_change_password"] == 1:
@@ -441,4 +444,5 @@ def logout():
 if __name__ == "__main__":
     init_db()
     seed_products()
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
+    # app.run(debug=True)
